@@ -91,7 +91,7 @@ python create_database.py
 Query the Chroma database with a specific question:
 
 ```bash
-python query_data.py "How can vua improve my financial status?"
+python vua_console_chat.py "How can vua improve my financial status?"
 ```
 
 > Note: Make sure the OpenAI API key is set in your environment variables for this to work.
