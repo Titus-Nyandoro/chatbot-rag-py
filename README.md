@@ -142,7 +142,7 @@ The project is organized as follows:
     - Populate the `docs` folder with PDF files containing important information. The application will parse these files as needed.
 
 4. **Querying the Database**:
-    - Use `query_data.py` to query the Chroma database with specific questions.
+    - Use `vua_console_chat.py` to query the Chroma database with specific questions.
 
 5. **SMS Processing**:
     - Incoming SMS messages are processed to generate responses. Phone numbers are reformatted to the standard `+254` format, and a response is sent back to the user.
