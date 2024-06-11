@@ -101,14 +101,24 @@ python query_data.py "How can vua improve my financial status?"
 The project is organized as follows:
 
 ```plaintext
-langchain-rag-tutorial/
-│
-├── create_database.py  # Script to create and populate the Chroma database
-├── query_data.py  # Script to query the Chroma database
-├── requirements.txt  # File containing project dependencies
-├── system_message.txt  # File containing the system message for the chatbot
-├── docs/  # Folder containing PDF documents to be parsed
-└── README.md  # Project documentation file
+/chatbot/
+├── __pycache__/                   # Compiled Python files
+├── chroma/                        # Folder containing Chroma DB related files
+├── data/                          # Data folder for storing datasets or inputs
+├──---- books/                          # add relevant pdfs
+├──---- documents/                      # add relevant pdfs
+├── instance/                      # Instance-specific files or configurations
+├── .env                           # Environment variables configuration file
+├── .gitignore                     # Git ignore file
+├── compare_embeddings.py          # Script to compare embeddings
+├── create_database.py             # Script to create and populate the Chroma database
+├── get-pip.py                     # Script to install pip if not available
+├── README.md                      # Project documentation file
+├── requirements.txt               # File containing project dependencies
+├── vua_app_vii.py                 # Main application script (version VII)
+├── vua_app.py                     # Main application script
+└── vua_console_chat.py            # Script for console-based chat interface
+
 ```
 
 ## Key Features
@@ -145,7 +155,4 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
-
-This README provides a comprehensive guide for setting up, using, and contributing to the Langchain RAG Tutorial. Feel free to reach out if you have any questions or need further assistance. Happy coding! 🚀
 
