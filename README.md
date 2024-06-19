@@ -1,158 +1,165 @@
-# Chatbot SMS python Library
+# VUA Chatbot
 
-Welcome to All! This guide will walk you through setting up a Python project that uses various libraries and services to create a sophisticated chatbot capable of handling SMS interactions, document parsing, and querying a database. Below you'll find detailed instructions on installing dependencies, configuring the environment, and running the application.
+## Overview
+The VUA Chatbot project leverages the LangChain library to create a document-based chatbot that utilizes OpenAI's embeddings. The chatbot interacts with users primarily via SMS, providing responses based on document data. The project includes functionality for loading documents, splitting them into manageable chunks, storing these chunks in a Chroma vector store, and providing a chat interface through a Flask web application.
 
 ## Table of Contents
-- [Prerequisites](#prerequisites)
-- [Install Dependencies](#install-dependencies)
+- [Getting Started](#getting-started)
+- [Directory Structure](#directory-structure)
 - [Configuration](#configuration)
 - [Creating the Database](#creating-the-database)
-- [Querying the Database](#querying-the-database)
-- [Project Structure](#project-structure)
-- [Key Features](#key-features)
-- [Usage](#usage)
+- [Running the Application](#running-the-application)
+- [JSON Format Guide](#json-format-guide)
 - [Contributing](#contributing)
 - [License](#license)
 
-## Prerequisites
+## Getting Started
 
-Before proceeding with the setup, ensure you have the following installed:
+### Prerequisites
+- Python 3.8 or higher
+- Virtual environment (optional but recommended)
 
-- **Python 3.8+**: Ensure that Python is installed on your machine. You can download it from [python.org](https://www.python.org/downloads/).
-- **pip**: Python package installer should be available. Usually, it comes with Python installation.
-- **conda** (optional but recommended): A package manager that simplifies managing dependencies, especially for machine learning projects. You can download it from [anaconda.com](https://www.anaconda.com/products/distribution).
+### Installation
+1. **Clone the repository**
+   ```sh
+   git clone https://github.com/your-repo/vua-chatbot.git
+   cd vua-chatbot
+   ```
 
-## Install Dependencies
+2. **Create and activate a virtual environment**
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
 
-1. **Install `onnxruntime`**:
-    - Due to challenges with installing `onnxruntime` via `pip`, use the following steps:
+3. **Install the required packages**
+   ```sh
+   pip install -r requirements.txt
+   pip install "unstructured[pdf]"
+   ```
 
-    - **For MacOS Users**:
-        ```bash
-        conda install onnxruntime -c conda-forge
-        ```
-        Refer to this [thread](https://github.com/microsoft/onnxruntime/issues/11037) for additional help if needed.
+4. **Set up environment variables**
+   Create a `.env` file in the project root directory and add your OpenAI and Africa's Talking API keys:
+   ```env
+   FLASK_SECRET_KEY=optional-secret
+   DATABASE_URL=sqlite:///vua.db
+   OPENAI_API_KEY=your_openai_api_key
+   AT_USERNAME=sandbox
+   AT_API_KEY=your_africastalking_api_key
+   ```
 
-    - **For Windows Users**:
-        Follow the guide [here](https://github.com/bycloudai/InstallVSBuildToolsWindows?tab=readme-ov-file) to install the Microsoft C++ Build Tools. Make sure to complete all steps to set the environment variable path correctly.
+### Creating the Database
+1. **Ensure your documents are in the `data/documents` directory**.
+   The script currently processes only PDF files. Place any PDF files you want to include in the database in this directory.
 
-2. **Install other dependencies**:
-    - Run the following command to install all dependencies listed in the `requirements.txt` file:
-    ```bash
-    pip install -r requirements.txt
-    ```
+2. **Run the `create_database.py` script**
+   ```sh
+   python create_database.py
+   ```
+   This will load the documents, split them into chunks, and save these chunks to the Chroma vector store.
 
-3. **Install Markdown dependencies**:
-    - Install dependencies for working with markdown files:
-    ```bash
-    pip install "unstructured[md]"
-    ```
+### Running the Application
+1. **Run the Flask application**
+   ```sh
+   python vua_app.py
+   ```
 
-4. **Install Africastalking library**:
-    - Install the Africastalking library for SMS functionality:
-    ```bash
-    pip install africastalking
-    ```
+2. **Access the application**
+   Open your web browser and navigate to `http://127.0.0.1:5000/` to interact with the chatbot.
+
+## Directory Structure
+```
+vua-chatbot/
+├── chroma/                     # Directory for storing Chroma vector database
+├── data/                       # Directory containing data files
+│   ├── books/                  # Example book files
+│   │   └── alice_in_wonderland.txt
+│   └── documents/              # Directory for storing documents to be processed
+├── instance/                   # Directory containing main scripts
+│   ├── compare_embeddings.py   # Script for comparing embeddings
+│   ├── create_database.py      # Script for creating the Chroma vector database
+│   ├── vua_app.py              # Main application script
+│   ├── vua_app_vii.py          # Alternate application script (details needed)
+│   └── vua_console_chat.py     # Console chat application script
+├── templates/                  # Directory for HTML templates
+│   └── index.html              # Main user interface template
+├── README.md                   # Project documentation
+├── requirements.txt            # Python dependencies
+└── .env                        # Environment variables (not included, must be created)
+```
 
 ## Configuration
 
-1. **Set up OpenAI Key**:
-    - Register for an API key at [OpenAI](https://beta.openai.com/signup/).
-    - Set the OpenAI API key as an environment variable:
-    ```bash
-    export OPENAI_API_KEY='your_openai_api_key'
-    ```
+### OpenAI Configuration
+- Register for an API key at [OpenAI](https://beta.openai.com/signup/).
+- Set the OpenAI API key in the `.env` file.
 
-2. **Africastalking Configuration**:
-    - Register at [Africastalking](https://account.africastalking.com/) to obtain your username and API key.
-    - Set your Africastalking username and API key as environment variables:
-    ```bash
-    export AFRICASTALKING_USERNAME='your_username'
-    export AFRICASTALKING_API_KEY='your_api_key'
-    export AFRICASTALKING_SHORTCODE='your_sms_shortcode'
-    ```
+### Africa's Talking Configuration
+- Register at [Africastalking](https://account.africastalking.com/) to obtain your username and API key.
+- Set your Africastalking username and API key in the `.env` file.
 
-3. **System Message Configuration**:
-    - Define your system message in a `system_message.txt` file located in the project root directory. This message will guide the chatbot's responses.
+### Flask Configuration
+- Set the Flask secret key in the `.env` file.
 
-4. **Load PDF Documents**:
-    - Ensure the `docs` folder in the project directory is populated with important PDF files. These documents will be parsed and used by the application.
+## JSON Format Guide
 
-## Creating the Database
-
-Create the Chroma database by running the following script:
-
-```bash
-python create_database.py
+### Chat Request Format
+When sending a chat message to the server, the JSON payload should follow this structure:
+```json
+{
+  "message": "Your message here",
+  "phone_number": "Your phone number here",
+  // "history": [  // OPTIONAL 
+  //   {
+  //     "role": "user",
+  //     "content": "Previous user message"
+  //   },
+  //   {
+  //     "role": "bot",
+  //     "content": "Previous bot response"
+  //   }
+  // ]
+}
 ```
 
-## Querying the Database
-
-Query the Chroma database with a specific question:
-
-```bash
-python vua_console_chat.py "How can vua improve my financial status?"
+### Chat Response Format
+The server responds with the following JSON structure:
+```json
+{
+  "reply": "Bot's reply to the user message"
+}
 ```
 
-> Note: Make sure the OpenAI API key is set in your environment variables for this to work.
-
-## Project Structure
-
-The project is organized as follows:
-
-```plaintext
-/chatbot/
-├── __pycache__/                   # Compiled Python files
-├── chroma/                        # Folder containing Chroma DB related files
-├── data/                          # Data folder for storing datasets or inputs
-├──---- books/                          # add relevant pdfs
-├──---- documents/                      # add relevant pdfs
-├── instance/                      # Instance-specific files or configurations
-├── .env                           # Environment variables configuration file
-├── .gitignore                     # Git ignore file
-├── compare_embeddings.py          # Script to compare embeddings
-├── create_database.py             # Script to create and populate the Chroma database
-├── get-pip.py                     # Script to install pip if not available
-├── README.md                      # Project documentation file
-├── requirements.txt               # File containing project dependencies
-├── vua_app_vii.py                 # Main application script (version VII)
-├── vua_app.py                     # Main application script
-└── vua_console_chat.py            # Script for console-based chat interface
-
+### SMS Request Format
+When sending an SMS message using Africa's Talking, the JSON payload should look like this:
+```json
+{
+  "to": "+254712345678",
+  "message": "Your SMS message here"
+}
 ```
 
-## Key Features
-
-- **PDF Document Reader**: Parses PDF documents for information retrieval.
-- **Chroma Database**: Uses Chroma DB for efficient data storage and retrieval.
-- **OpenAI Integration**: Utilizes OpenAI for text embedding and completion.
-- **SMS Interaction**: Handles SMS parsing and sending via Africastalking.
-
-
-## Usage
-
-1. **Sending SMS**:
-    - Call the `send_sms` function with an `SmsRequest` object to send an SMS.
-
-2. **Receiving SMS**:
-    - Configure your SMS gateway to forward messages to your application's receiving endpoint.
-    - The application will process incoming messages automatically using the `process_incoming_sms` function.
-
-3. **Loading PDF Documents**:
-    - Populate the `docs` folder with PDF files containing important information. The application will parse these files as needed.
-
-4. **Querying the Database**:
-    - Use `vua_console_chat.py` to query the Chroma database with specific questions.
-
-5. **SMS Processing**:
-    - Incoming SMS messages are processed to generate responses. Phone numbers are reformatted to the standard `+254` format, and a response is sent back to the user.
+### SMS Response Format
+The response from Africa's Talking will typically be in this format:
+```json
+{
+  "SMSMessageData": {
+    "Message": "Sent to 1/1 Total Cost: 0.8000",
+    "Recipients": [
+      {
+        "statusCode": 101,
+        "number": "+254712345678",
+        "status": "Success",
+        "cost": "KES 0.8000",
+        "messageId": "ATXid_ba89924c2d344f36b16e123fefefefef"
+      }
+    ]
+  }
+}
+```
 
 ## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes. Ensure your code adheres to the project’s coding standards and includes relevant tests.
+Contributions are welcome! Please feel free to submit a Pull Request or report issues.
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
+This project is licensed under the MIT License. See the LICENSE file for more details.
